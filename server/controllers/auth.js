@@ -23,8 +23,6 @@ const passwordValidatorOptions = {
 exports.signup = async (req, res, next) => {
   const { email, username, password } = req.body;
 
-  console.log(`email : ${email} , username : ${username} , password : ${password}`);
-
   if (!req.body) {
     return res.status(400).send({
       message: "Content can not be empty!",

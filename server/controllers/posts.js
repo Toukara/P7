@@ -18,6 +18,11 @@ exports.createPost = async (req, res) => {
 exports.getPosts = async (req, res) => {
   const posts = await Post.findAll({});
 
+  if (!posts) {
+    res.status(400).json({ message: "No posts found" });
+    posts = [];
+  }
+
   res.status(200).json(posts);
 };
 

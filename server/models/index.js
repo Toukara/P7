@@ -37,7 +37,7 @@ Object.keys(db).forEach((modelName) => {
 //   console.error("Unable to connect to the database:", error);
 // }
 
-sequelize.sync({ force: true });
+sequelize.sync({ force: false });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
