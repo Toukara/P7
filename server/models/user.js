@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.User.hasMany(models.Post);
+      models.User.hasMany(models.Post, {
+        foreignKey: "authorId",
+      });
     }
   }
   User.init(
@@ -18,15 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       username: DataTypes.STRING,
       password: DataTypes.STRING,
       bio: DataTypes.STRING,
-      isAdmin: {
+      authLevel: {
         allowNull: false,
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        type: Sequelize.STRING,
+        defaultValue: "0",
       },
       avatar: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: "https://www.screenfeed.fr/wp-content/uploads/2013/10/default-avatar.png",
+        defaultValue: "default_avatar0.png",
       },
     },
     {

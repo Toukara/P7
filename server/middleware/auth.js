@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+exports.verifiedUser = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.Secret_Key);
-    const userId = decodedToken.userId;
+    const userId = decodedToken.id;
     if (req.body.userId && req.body.userId !== userId) {
       throw "Invalid user ID";
     } else {
@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
     }
   } catch (err) {
     res.status(401).json({
-      error: err,
+      error: "You are not authenticated!",
     });
   }
 };

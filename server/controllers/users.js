@@ -1,4 +1,28 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const fs = require("fs");
+const path = require("path");
+const { Op } = require("sequelize");
+const { isEmail, isAlphanumeric, isStrongPassword } = require("validator");
+
+const { checkUserID } = require("../utils/user");
+
 const { User } = require("../models");
+
+const passwordValidatorOptions = {
+  minLength: 8,
+  minLowercase: 1,
+  minUppercase: 1,
+  minNumbers: 1,
+  minSymbols: 1,
+  returnScore: false,
+  pointsPerUnique: 1,
+  pointsPerRepeat: 0.5,
+  pointsForContainingLower: 10,
+  pointsForContainingUpper: 10,
+  pointsForContainingNumber: 10,
+  pointsForContainingSymbol: 10,
+};
 
 exports.getUser = async (req, res, next) => {
   const user = await User.findOne({ where: { id: req.params.id } });
@@ -6,20 +30,80 @@ exports.getUser = async (req, res, next) => {
   if (!user) {
     return res.status(400).send({ message: "User does not exist" });
   }
-  res.status(200).json(user);
+
+  if (await checkUserID(user.id, req.headers.authorization)) {
+    res.status(200).json(user);
+  } else {
+    res.status(200).json({ username: user.username, id: user.id, avatar: user.avatar });
+  }
 };
 
-exports.updateUser = async (req, res, next) => {
+async function deleteAvatar(user) {
+  if (user.avatar !== "default_avatar0.png") {
+    fs.unlink(`${path.join(__dirname, "../public/images/avatars")}/${user.avatar}`, (err) => {
+      if (err) {
+        return res.status(400).send({ message: "Error deleting user avatar", error: err });
+      }
+    });
+  } else {
+    return;
+  }
+}
+
+exports.editUser = async (req, res, next) => {
   const user = await User.findOne({ where: { id: req.params.id } });
 
   if (!user) {
     return res.status(400).send({ message: "User does not exist" });
   }
 
-  await user.update(req.body);
-  await user.save().then(() => {
+  if (await checkUserID(user.id, req.headers.authorization)) {
+    if (!req.body) {
+      return res.status(400).send({ message: "Content can not be empty!" });
+    }
+
+    console.log(req.body);
+
+    let newData = {};
+
+    if (req.body.email) {
+      if (isEmail(req.body.email)) {
+        newData.email = req.body.email;
+      } else {
+        return res.status(400).send({ message: "Invalid email!" });
+      }
+    }
+
+    if (req.body.username) {
+      if (isAlphanumeric(req.body.username)) {
+        newData.username = req.body.username;
+      } else {
+        return res.status(400).send({ message: "Invalid username!" });
+      }
+    }
+
+    if (req.body.password) {
+      if (isStrongPassword(req.body.password, passwordValidatorOptions)) {
+        newData.password = await bcrypt.hash(req.body.password, 10);
+      } else {
+        return res.status(400).send({ message: "Invalid password!" });
+      }
+    }
+
+    if (req.body.bio) {
+      newData.bio = req.body.bio;
+    }
+
+    if (req.file) {
+      await deleteAvatar(user);
+      newData.avatar = req.file.filename;
+    }
+
+    await User.update(newData, { where: { id: user.id } });
     res.status(200).json({ message: "User updated successfully" });
-  });
+  } else {
+    res.status(400).json({ message: "You are not allowed to edit this user" });
+  }
 };
 
 exports.deleteUser = async (req, res, next) => {
@@ -29,6 +113,11 @@ exports.deleteUser = async (req, res, next) => {
     return res.status(400).send({ message: "User does not exist" });
   }
 
+  await deleteAvatar(user);
   await user.destroy();
   res.status(200).json({ message: "User deleted successfully" });
+};
+
+exports.test = async (req, res, next) => {
+  res.status(200).json({ message: "User controller works" });
 };

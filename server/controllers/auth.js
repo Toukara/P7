@@ -33,6 +33,18 @@ exports.signup = async (req, res, next) => {
     });
   }
 
+  if (!isEmail(email)) {
+    return res.status(400).send({ message: "Invalid email!" });
+  }
+
+  if (!isAlphanumeric(username)) {
+    return res.status(400).send({ message: "Invalid username!" });
+  }
+
+  if (!isStrongPassword(password, passwordValidatorOptions)) {
+    return res.status(400).send({ message: "Invalid password!" });
+  }
+
   if (isEmail(email) && isAlphanumeric(username) && isStrongPassword(password, passwordValidatorOptions)) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user, create] = await User.findOrCreate({
@@ -55,14 +67,14 @@ exports.signin = async (req, res, next) => {
   const user = await User.findOne({ where: { email: email } });
 
   if (!user) {
-    return res.status(400).send({ message: "User does not exist" });
+    return res.status(404).send({ message: "User does not exist" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     return res.status(400).send({ message: "Invalid password" });
   } else {
-    const token = jwt.sign({ id: user.id }, process.env.Secret_Key, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user.id, authLevel: user.authLevel }, process.env.Secret_Key, { expiresIn: "24h" });
     res.status(200).json({ message: "User logged in successfully!", token: token, userId: user.id });
   }
 };

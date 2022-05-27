@@ -2,12 +2,14 @@ var express = require("express");
 var router = express.Router();
 
 const postsController = require("../controllers/posts.js");
-const authMiddleware = require("../middleware/auth.js");
+const authorization = require("../middleware/authorization.js");
+const { attachmentStockage } = require("../middleware/multer.js");
 
-router.get("/", authMiddleware, postsController.getPosts);
-router.post("/", authMiddleware, postsController.createPost);
-router.get("/:id", authMiddleware, postsController.getOnePost);
-router.delete("/:id", authMiddleware, postsController.deletePost);
-router.put("/:id", authMiddleware, postsController.editPost);
+router.get("/", authorization.isVerifiedUser, postsController.getPosts);
+router.post("/", authorization.isVerifiedUser, attachmentStockage, postsController.createPost);
+router.get("/:id", authorization.isVerifiedUser, postsController.getOnePost);
+router.delete("/:id", authorization.isVerifiedUser, postsController.deletePost);
+router.patch("/:id", authorization.isVerifiedUser, attachmentStockage, postsController.editPost);
+router.post("/:id/likes", authorization.isVerifiedUser, postsController.likePost);
 
 module.exports = router;
