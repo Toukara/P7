@@ -1,11 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const { Post } = require("../models");
+const { Post, Comment } = require("../models");
 const { getUserId } = require("../utils/user");
 
 exports.createPost = async (req, res) => {
-  const { authorId, title, content } = req.body;
+  const { title, content } = req.body;
+
+  let authorId = await getUserId(req.headers.authorization);
 
   console.log(req.file);
 
@@ -39,7 +41,9 @@ exports.getOnePost = async (req, res) => {
     return res.status(400).send({ message: "Post does not exist" });
   }
 
-  res.status(200).json(post);
+  const comments = await Comment.findAll({ where: { postId: req.params.id } });
+
+  res.status(200).json({ post, comments });
 };
 
 exports.deletePost = async (req, res) => {
@@ -143,10 +147,49 @@ exports.likePost = async (req, res) => {
   post.likesUsers = likesUsers_Array;
   post.dislikesUsers = dislikesUsers_Array;
 
-  console.log("Array Like: ", likesUsers_Array, "Array Dislike: ", dislikesUsers_Array);
-  console.log("Likes", post.likes, "Dislikes", post.dislikes);
-
   await post.save().then((post) => {
     res.status(200).json({ message: succesMessage });
+  });
+};
+
+exports.getLikes = async (req, res) => {
+  const post = await Post.findOne({ where: { id: req.params.id } });
+
+  if (!post) {
+    return res.status(404).send({ message: "Post not found" });
+  }
+
+  res.status(200).json({ likes: post.likes, dislikes: post.dislikes, likesUsers: post.likesUsers, dislikesUsers: post.dislikesUsers });
+};
+
+exports.addComment = async (req, res) => {
+  const post = await Post.findOne({ where: { id: req.params.id } });
+
+  if (!post) {
+    return res.status(404).send({ message: "Post not found" });
+  }
+
+  const userId = await getUserId(req.headers.authorization);
+
+  const comment = await Comment.create({
+    authorId: userId,
+    postId: post.id,
+    content: req.body.content,
+  });
+
+  await comment.save().then(() => {
+    res.status(200).json({ message: "Comment added successfully" });
+  });
+};
+
+exports.deleteComment = async (req, res) => {
+  const comment = await Comment.findOne({ where: { id: req.params.id } });
+
+  if (!comment) {
+    return res.status(400).send({ message: "Comment does not exist" });
+  }
+
+  await Comment.destroy({ where: { id: req.params.id } }).then(() => {
+    res.status(200).json({ message: "Comment deleted successfully" });
   });
 };

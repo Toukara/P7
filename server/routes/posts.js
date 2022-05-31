@@ -5,11 +5,13 @@ const postsController = require("../controllers/posts.js");
 const authorization = require("../middleware/authorization.js");
 const { attachmentStockage } = require("../middleware/multer.js");
 
-router.get("/", authorization.isVerifiedUser, postsController.getPosts);
+router.get("/", postsController.getPosts);
 router.post("/", authorization.isVerifiedUser, attachmentStockage, postsController.createPost);
-router.get("/:id", authorization.isVerifiedUser, postsController.getOnePost);
-router.delete("/:id", authorization.isVerifiedUser, postsController.deletePost);
-router.patch("/:id", authorization.isVerifiedUser, attachmentStockage, postsController.editPost);
+router.get("/:id", postsController.getOnePost);
+router.delete("/:id", authorization.isVerifiedUser, authorization.isAuthorized, postsController.deletePost);
+router.post("/:id", authorization.isVerifiedUser, postsController.addComment);
+router.patch("/:id", authorization.isVerifiedUser, authorization.isAuthorized, attachmentStockage, postsController.editPost);
 router.post("/:id/likes", authorization.isVerifiedUser, postsController.likePost);
+router.get("/:id/likes", authorization.isVerifiedUser, postsController.getLikes);
 
 module.exports = router;

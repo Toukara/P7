@@ -33,6 +33,10 @@ async function authorization(req, res, next) {
   if (requestDirectory[2] === "posts") {
     const post = await Post.findOne({ where: { id: requestDirectory[3] } });
 
+    if (!post) {
+      return res.status(404).send({ message: "Post does not exist" });
+    }
+
     if (req.method === "DELETE") {
       if (decodedToken.authLevel >= 2 || post.authorId === decodedToken.id) {
         next();
@@ -73,5 +77,16 @@ async function authorization(req, res, next) {
   }
 }
 
+async function verifyAdmin(req) {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, process.env.Secret_Key);
+  if (decodedToken.authLevel >= 2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports.isAuthorized = authorization;
 module.exports.isVerifiedUser = verifyUser;
+module.exports.isAdmin = verifyAdmin;

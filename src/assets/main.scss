@@ -1,0 +1,8 @@
+$pink: hsl(0, 100%, 92%);
+$red: hsl(10, 99%, 50%);
+
+$primary: $pink;
+$link: $red;
+
+@import "../../node_modules/bulma/sass/utilities/initial-variables.sass";
+@import "~bulma";

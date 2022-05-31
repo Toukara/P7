@@ -19,7 +19,6 @@ const MIME_TYPES = {
   },
 
   avatar: {
-    "image/gif": "gif",
     "image/bmp": "bmp",
   },
 
@@ -27,7 +26,7 @@ const MIME_TYPES = {
     "image/jpg": "jpg",
     "image/jpeg": "jpg",
     "image/png": "png",
-    
+    "image/gif": "gif",
   },
 };
 
