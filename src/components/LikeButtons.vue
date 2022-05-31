@@ -33,6 +33,11 @@ export default {
   methods: {
     async fetchLikes() {
       await axios.get(`/posts/${this.$route.params.id}/likes`).then((response) => {
+        
+        if(response.data.likesUsers.includes(this.authorId)) {
+          console.log("yes");
+        }
+
         if (response.data.likesUsers.includes(this.authorId)) {
           this.isLiked = true;
           this.isDisliked = false;
@@ -47,8 +52,8 @@ export default {
 
         this.likes = response.data.likes;
         this.dislikes = response.data.dislikes;
-        
-        console.log(response.data.likesUsers);
+
+        // console.log(response.data.likesUsers);
       });
     },
   },
