@@ -171,3 +171,4 @@ backend/public/images/attachments/*
 backend/public/images/avatars/*
 !.gitkeep
 !backend/public/images/avatars/default_avatar0.png
+.env
