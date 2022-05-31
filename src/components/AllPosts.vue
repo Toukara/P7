@@ -29,12 +29,6 @@
             ></audio>
           </div>
         </div>
-        <div class="message-footer">
-          <div class="likesButtons">
-            <button class="button is-primary" @click="like(post.id)">Like : {{ post.likes }}</button>
-            <button class="button is-danger" @click="dislike(post.id)">Dislike {{ post.dislikes }}</button>
-          </div>
-        </div>
       </article>
     </router-link>
   </div>
@@ -42,7 +36,7 @@
 
 <script>
 export default {
-  name: "PostComponent",
+  name: "AllPostComponent",
   props: {
     posts: {
       type: Array,
@@ -90,5 +84,19 @@ export default {
   flex-direction: row;
   gap: 8px;
   align-items: center;
+}
+</style>
+
+<style scoped>
+article:hover {
+  transform: scale(1.018);
+  filter: blur(0px);
+  transition: all 0.5s ease;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+article {
+  transition: all 0.5s ease;
 }
 </style>

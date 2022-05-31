@@ -4,8 +4,10 @@
     <div v-if="!this.post">Loading...</div>
     <PostOne v-else :post="this.post" />
     <div class="comments_container">
+      <CreateComment :post="this.post" />
       <h2 class="comments_title">Comments :</h2>
-      <Comments :comments="this.comments" />
+      <Comments v-if="comments.length > 0" :comments="this.comments" />
+      <div v-else class="no_comments">No comments yet</div>
     </div>
   </div>
 </template>
@@ -14,9 +16,12 @@
 import axios from "axios";
 import PostOne from "../components/Post.vue";
 import Comments from "../components/Comments.vue";
+import CreateComment from "../components/CreateComment.vue";
 
 export default {
-  name: "PostComponent",
+  name: "PostViewComponent",
+  components: { PostOne, Comments, CreateComment },
+
   data() {
     return {
       post: {},
@@ -73,7 +78,6 @@ export default {
     await this.fetchComments();
     await this.fetchPost();
   },
-  components: { PostOne, Comments },
 };
 </script>
 
@@ -95,5 +99,12 @@ export default {
 
 .message {
   overflow-wrap: break-word;
+}
+
+.no_comments {
+  margin: 28px auto;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>

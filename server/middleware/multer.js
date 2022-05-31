@@ -14,7 +14,6 @@ const MIME_TYPES = {
 
     "video/mp4": "mp4",
     "video/avi": "avi",
-    "video/mpeg": "mpeg",
     "video/quicktime": "mov",
   },
 

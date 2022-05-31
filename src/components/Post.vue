@@ -1,6 +1,10 @@
 <template>
   <article class="message is-primary">
     <div class="message-body">
+      <div class="buttonsAuthor" v-if="this.post.id">
+        <router-link v-if="this.userId == post.author.id" class="button is-warning" :to="`/posts/${post.id}/edit`">Edit</router-link>
+        <button v-if="this.userId == post.author.id" class="button is-danger" @click="deletePost(post.id)">Delete</button>
+      </div>
       <p>{{ post.content }}</p>
       <div class="message-attachment" v-if="post.attachment">
         <img
@@ -21,7 +25,7 @@
       <div class="message-footer">
         <LikeButtons :post="this.post" :user="this.post.author" />
         <div class="timestamp" v-if="post.created && post.updated">
-          <p v-if="post.created === post.updated">Created on : {{ post.created }}</p>
+          <p v-if="post.created == post.updated">Created on : {{ post.created }}</p>
           <p v-else>Edited on : {{ post.updated }}</p>
         </div>
         <div v-if="post.author" class="user_profile_footer">
@@ -36,8 +40,8 @@
 </template>
 
 <script>
-import { axios } from "../utilities/axios";
 import LikeButtons from "./LikeButtons";
+import { axios } from "../utilities/axios";
 
 export default {
   name: "PostComponent",
@@ -61,39 +65,20 @@ export default {
 
       liked: null,
       disliked: null,
+
+      userId: localStorage.getItem("userId"),
     };
   },
   methods: {
-    // async fetchLikes() {
-    //   axios.get(`/posts/${this.$route.params.id}/likes`).then((response) => {
-    //     this.likes = response.data.likes;
-    //     this.dislikes = response.data.dislikes;
+    async deletePost(PostId) {
+      console.log(PostId);
+      let response = await axios.delete(`/posts/${PostId}`);
 
-    //     if (response.data.likesUsers.includes(this.post.authorId)) {
-    //       this.liked = true;
-    //       this.disliked = false;
-    //     } else if (response.data.dislikesUsers.includes(this.post.authorId)) {
-    //       this.disliked = true;
-    //       this.liked = false;
-    //     } else {
-    //       this.liked = false;
-    //       this.disliked = false;
-    //     }
-    //   });
-
-    //   console.log(this.liked, this.disliked);
-    // },
-
-    async like(PostId) {
-      await axios.post(`/posts/${PostId}/likes`, {
-        like: 1,
-      });
-
-      this.liked = true;
+      if (response.status === 200) {
+        alert(response.data.message);
+        location.replace("/");
+      }
     },
-  },
-  async created() {
-    
   },
 };
 </script>
@@ -115,5 +100,12 @@ export default {
 
 .user_profile_footer img {
   vertical-align: middle;
+}
+
+.buttonsAuthor {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
 }
 </style>

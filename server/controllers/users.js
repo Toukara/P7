@@ -7,7 +7,7 @@ const { isEmail, isAlphanumeric, isStrongPassword } = require("validator");
 
 const { checkUserID, getUserId } = require("../utils/user");
 
-const { User } = require("../models");
+const { User, Post, Comment } = require("../models");
 
 const passwordValidatorOptions = {
   minLength: 8,
@@ -31,11 +31,22 @@ exports.getUser = async (req, res, next) => {
   } else {
     if (
       (await checkUserID(user.id, req.headers.authorization)) ||
-      (await User.findOne({ where: { id: await getUserId(req.headers.authorization) } }).then((user) => user.authLevel >= 2))
+      (await User.findOne({ where: { id: await getUserId(req.headers.authorization) } }).then((user) => {
+        if (!user) return false;
+        else user.authLevel >= 2;
+      }))
     ) {
       res.status(200).json(user);
     } else {
-      res.status(200).json({ username: user.username, id: user.id, avatar: user.avatar });
+      res.status(200).json({
+        username: user.username,
+        id: user.id,
+        avatar: user.avatar,
+        bio: user.bio,
+        authLevel: user.authLevel,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      });
     }
   }
 };
@@ -45,6 +56,18 @@ async function deleteAvatar(user) {
     fs.unlink(`${path.join(__dirname, "../public/images/avatars")}/${user.avatar}`, (err) => {
       if (err) {
         return res.status(400).send({ message: "Error deleting user avatar", error: err });
+      }
+    });
+  } else {
+    return;
+  }
+}
+
+async function deleteAttachment(post) {
+  if (post.attachment) {
+    fs.unlink(`${path.join(__dirname, "../public/images/attachments")}/${post.attachment}`, (err) => {
+      if (err) {
+        return res.status(400).send({ message: "Error deleting post attachment", error: err });
       }
     });
   } else {
@@ -111,11 +134,24 @@ exports.deleteUser = async (req, res, next) => {
     return res.status(400).send({ message: "User does not exist" });
   }
 
+  const posts = await Post.findAll({ where: { authorId: user.id } });
+
+  if (posts) {
+    await posts.forEach(async (post) => {
+      await deleteAttachment(post);
+      await post.destroy();
+    });
+  }
+
+  const comments = await Comment.findAll({ where: { authorId: user.id } });
+
+  if (comments) {
+    await comments.forEach(async (comment) => {
+      await comment.destroy();
+    });
+  }
+
   await deleteAvatar(user);
   await user.destroy();
   res.status(200).json({ message: "User deleted successfully" });
-};
-
-exports.test = async (req, res, next) => {
-  res.status(200).json({ message: "User controller works" });
 };

@@ -7,6 +7,6 @@ const { avatarStockage } = require("../middleware/multer.js");
 
 router.get("/:id", userController.getUser);
 router.patch("/:id", authorization.isVerifiedUser, authorization.isAuthorized, avatarStockage, userController.editUser);
-router.delete("/:id", authorization.isVerifiedUser, userController.deleteUser);
+router.delete("/:id", authorization.isVerifiedUser, authorization.isAuthorized, userController.deleteUser);
 
 module.exports = router;

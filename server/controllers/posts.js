@@ -19,7 +19,7 @@ exports.createPost = async (req, res) => {
   });
 
   await post.save().then(() => {
-    res.status(200).json({ message: "Post created successfully" });
+    res.status(201).json({ message: "Post created successfully" });
   });
 };
 
@@ -58,6 +58,14 @@ exports.deletePost = async (req, res) => {
       if (err) {
         return res.status(400).send({ message: "Error deleting post attachment", error: err });
       }
+    });
+  }
+
+  const comments = await Comment.findAll({ where: { postId: req.params.id } });
+
+  if (comments) {
+    await comments.forEach(async (comment) => {
+      await comment.destroy();
     });
   }
 
@@ -109,7 +117,6 @@ exports.likePost = async (req, res) => {
     } else if (post.dislikesUsers.includes(userId)) {
       dislikesUsers_Array = post.dislikesUsers.filter((user) => user !== userId);
       post.dislikes -= 1;
-      likesUsers_Array.push(userId);
       succesMessage = "You undisliked this post";
     }
   } else if (req.body.like === 1) {
@@ -177,8 +184,10 @@ exports.addComment = async (req, res) => {
     content: req.body.content,
   });
 
+  console.log(req);
+
   await comment.save().then(() => {
-    res.status(200).json({ message: "Comment added successfully" });
+    res.status(201).json({ message: "Comment added successfully" });
   });
 };
 
@@ -192,4 +201,10 @@ exports.deleteComment = async (req, res) => {
   await Comment.destroy({ where: { id: req.params.id } }).then(() => {
     res.status(200).json({ message: "Comment deleted successfully" });
   });
+};
+
+exports.getComments = async (req, res) => {
+  const comments = await Comment.findAll({});
+
+  res.status(200).json({ comments });
 };

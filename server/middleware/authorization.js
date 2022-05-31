@@ -9,6 +9,10 @@ const { Post, User } = require("../models");
 async function verifyUser(req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).send({ message: "You are not authorized" });
+    }
     const decodedToken = jwt.verify(token, process.env.Secret_Key);
     const userId = decodedToken.id;
     if (req.body.userId && req.body.userId !== userId) {
@@ -25,6 +29,10 @@ async function verifyUser(req, res, next) {
 
 async function authorization(req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send({ message: "You are not authorized" });
+  }
   const decodedToken = jwt.verify(token, process.env.Secret_Key);
 
   let requestDirectory = req.originalUrl.split("/");

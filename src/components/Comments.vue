@@ -7,13 +7,14 @@
           <p>
             <router-link :to="`/users/${comment.authorId}`"> {{ comment.author.username }}</router-link> commented:
           </p>
+          <button v-if="this.userId == comment.author.id" class="delete delete_comment" aria-label="delete" @click="deleteComment(comment.id)"></button>
         </div>
         <div class="message-content">
           <p>{{ comment.content }}</p>
         </div>
         <div class="message-footer">
           <div class="timestamp" v-if="comment.created && comment.updated">
-            <p v-if="comment.created === comment.updated">Created on : {{ comment.created }}</p>
+            <p v-if="comment.created == comment.updated">Created on : {{ comment.created }}</p>
             <p v-else>Edited on : {{ comment.updated }}</p>
           </div>
         </div>
@@ -23,6 +24,7 @@
 </template>
 
 <script>
+import { axios } from "../utilities/axios";
 export default {
   name: "CommentComponent",
   props: {
@@ -32,7 +34,20 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      userId: localStorage.getItem("userId"),
+    };
+  },
+  methods: {
+    async deleteComment(CommentId) {
+      console.log(CommentId);
+      let response = await axios.delete(`/posts/comments/${CommentId}`);
+
+      if (response.status === 200) {
+        alert(response.data.message);
+        location.reload();
+      }
+    },
   },
 };
 </script>
@@ -59,5 +74,10 @@ export default {
 
 .message-footer .timestamp {
   font-size: 1.7vh;
+}
+
+.delete_comment {
+  margin-left: auto;
+  margin-right: -4px;
 }
 </style>

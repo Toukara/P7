@@ -3,14 +3,14 @@
     <div class="field">
       <label class="label">Username</label>
       <div class="control">
-        <input v-model="registerData.username" class="input" type="text" placeholder="e.g JohnDoe120" />
+        <input v-model="registerData.username" class="input" type="text" />
       </div>
     </div>
 
     <div class="field">
       <label class="label">Email</label>
       <div class="control">
-        <input v-model="registerData.email" class="input" type="email" placeholder="e.g. johndoe@gmail.com" />
+        <input v-model="registerData.email" class="input" type="email" />
       </div>
     </div>
 
@@ -30,15 +30,13 @@
 
     <div class="field">
       <div class="control">
-        <button class="button is-primary" @click.prevent="register">Sign up</button>
-        <router-link class="button is-secondary" to="/login">Log in</router-link>
+        <div class="buttons">
+          <button class="button is-primary" @click.prevent="register">Sign up</button>
+          <router-link class="button is-secondary" to="/login">Log in</router-link>
+        </div>
       </div>
     </div>
-    {{ registerData.username }}
-    {{ registerData.email }}
-    {{ registerData.password }}
-    {{ registerData.passwordConfirmation }}
-    <p style="color: red; font-weight: 600;">{{ error.message }}</p>
+    <p style="color: red; font-weight: 600">{{ error.message }}</p>
   </div>
 </template>
 
@@ -95,3 +93,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.buttons {
+  display: flex;
+  justify-content: center;
+}
+</style>

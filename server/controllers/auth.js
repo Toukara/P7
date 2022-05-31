@@ -71,8 +71,12 @@ exports.signin = async (req, res, next) => {
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
+  const emailChecked = user.email === email;
+
   if (!isPasswordValid) {
     return res.status(400).send({ message: "Invalid password" });
+  } else if (!emailChecked) {
+    return res.status(400).send({ message: "Invalid email" });
   } else {
     const token = jwt.sign({ id: user.id, authLevel: user.authLevel }, process.env.Secret_Key, { expiresIn: "24h" });
     res.status(200).json({ message: "User logged in successfully!", token: token, userId: user.id });

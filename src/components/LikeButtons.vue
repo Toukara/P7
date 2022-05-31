@@ -1,9 +1,7 @@
 <template>
   <div class="likesButtons">
-    <button class="button is-primary" @click="like(post.id)" v-bind:class="{ 'is-light': this.isLiked }">Like : {{ this.likes }}</button>
-    <button class="button is-danger" @click="dislike(post.id)" v-bind:class="{ 'is-loading': (this.isLiked = null && this.likes == '') }">
-      Dislike : {{ this.dislikes }}
-    </button>
+    <button class="button is-primary" @click="like(post.id)" v-bind:class="{ 'is-light': this.isLiked == true }">Like : {{ this.likes }}</button>
+    <button class="button is-danger" @click="dislike(post.id)" v-bind:class="{ 'is-light': this.isDisliked == true }">Dislike : {{ this.dislikes }}</button>
   </div>
 </template>
 
@@ -21,7 +19,7 @@ export default {
 
   data() {
     return {
-      authorId: localStorage.getItem("userId"),
+      userId: localStorage.getItem("userId"),
 
       likes: "",
       dislikes: "",
@@ -33,28 +31,83 @@ export default {
   methods: {
     async fetchLikes() {
       await axios.get(`/posts/${this.$route.params.id}/likes`).then((response) => {
-        
-        if(response.data.likesUsers.includes(this.authorId)) {
-          console.log("yes");
+        for (const i of response.data.likesUsers) {
+          if (Number(i) == this.userId) {
+            this.isLiked = true;
+            this.isDisliked = false;
+          }
         }
 
-        if (response.data.likesUsers.includes(this.authorId)) {
-          this.isLiked = true;
-          this.isDisliked = false;
-          console.log(this.isLiked);
-        } else if (response.data.dislikesUsers.includes(this.authorId)) {
-          this.isDisliked = true;
-          this.isLiked = false;
-        } else {
-          this.isLiked = false;
-          this.isDisliked = false;
+        for (const i of response.data.dislikesUsers) {
+          if (Number(i) == this.userId) {
+            this.isDisliked = true;
+            this.isLiked = false;
+          }
         }
 
         this.likes = response.data.likes;
         this.dislikes = response.data.dislikes;
-
-        // console.log(response.data.likesUsers);
       });
+    },
+
+    async like(PostId) {
+      if (this.isDisliked) {
+        await axios.post(`/posts/${PostId}/likes`, {
+          like: 1,
+        });
+        this.isDisliked = false;
+        this.dislikes--;
+        this.isLiked = true;
+        this.likes++;
+      } else if (this.isLiked) {
+        this.unlike(PostId);
+      } else {
+        await axios.post(`/posts/${PostId}/likes`, {
+          like: 1,
+        });
+        this.isLiked = true;
+        this.likes++;
+      }
+    },
+
+    async unlike(PostId) {
+      await axios.post(`/posts/${PostId}/likes`, {
+        like: 0,
+      });
+
+      this.isLiked = false;
+      this.likes--;
+    },
+
+    async dislike(PostId) {
+      if (this.isLiked) {
+        await axios.post(`/posts/${PostId}/likes`, {
+          like: -1,
+        });
+
+        this.isLiked = false;
+        this.likes--;
+        this.isDisliked = true;
+        this.dislikes++;
+      } else if (this.isDisliked) {
+        this.undislike(PostId);
+      } else {
+        await axios.post(`/posts/${PostId}/likes`, {
+          like: -1,
+        });
+
+        this.isDisliked = true;
+        this.dislikes++;
+      }
+    },
+
+    async undislike(PostId) {
+      await axios.post(`/posts/${PostId}/likes`, {
+        like: 0,
+      });
+
+      this.isDisliked = false;
+      this.dislikes--;
     },
   },
   async created() {
