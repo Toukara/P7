@@ -56,6 +56,13 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ "../views/UserProfileView.vue"),
     props: true,
   },
+  {
+    path: "/users/:id/edit",
+    name: "editUser",
+    beforeEnter: [removeQueryParams, removeHash],
+    component: () => import(/* webpackChunkName: "about" */ "../views/EditUserView.vue"),
+    props: true,
+  },
 ];
 
 const router = createRouter({
@@ -64,7 +71,7 @@ const router = createRouter({
 });
 
 // router.beforeEach((to, from, next) => {
-//   if (to.name !== "login" && !localStorage.getItem("token")) next({ name: "signup" });
+//   if (to.name !== "login" && !localStorage.getItem("token")) next({ name: "login" });
 //   else next();
 // });
 

@@ -1,12 +1,12 @@
 <template>
   <div class="home">
     <div class="container">
-      <router-link class="button is-link create" to="/submit">Create Post</router-link>
+      <router-link  v-if="this.currentUser.token && this.currentUser.id" class="button is-link create" to="/submit">Create Post</router-link>
       <div v-if="posts.length > 0">
         <Posts :posts="posts" />
       </div>
       <div v-else>
-        <p>No posts yet</p>
+        <p>No posts yet..</p>
       </div>
     </div>
   </div>
@@ -24,6 +24,12 @@ export default {
   data() {
     return {
       posts: {},
+
+      currentUser: {
+        id: localStorage.getItem("userId"),
+        token: localStorage.getItem("token"),
+        authLevel: null,
+      },
     };
   },
   methods: {

@@ -1,35 +1,35 @@
 <template>
-  <!-- <nav>
-    <router-link to="/">Home</router-link> | <router-link to="/login">Log in</router-link> |
-    <router-link to="/signup">Sign up</router-link>
-   
-    <div class="logoutBouton">
-      <button class="button is-danger" v-if="user" @click="logout">Logout</button>
-    </div>
-  </nav> -->
-
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img class="logo" src=".././public/icon.png" />
       </a>
 
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" @click="showNav = !showNav" :class="{ 'is-active': showNav }">
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
       </a>
     </div>
 
-    <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-menu" v-bind:class="{ 'is-active': showNav }">
       <div class="navbar-start">
-        <a class="navbar-item"> Home </a>
+        <a class="navbar-item home" href="/"> Home </a>
       </div>
 
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
             <div v-if="user" class="logoutBouton">
+              <router-link class="button is-primary" :to="`/users/${this.currentUser.id}`">
+                Profile
+                <img
+                  class="avatar profile_button"
+                  v-if="this.currentUser.avatar"
+                  :src="`http://localhost:3000/avatar/${this.currentUser.avatar}`"
+                  alt="@me avatar"
+                />
+              </router-link>
               <button class="button is-danger" @click="logout">Logout</button>
             </div>
             <div v-else class="loginButtons">
@@ -48,14 +48,27 @@
 </template>
 
 <script>
+import { axios } from "./utilities/axios";
 export default {
   data() {
     return {
       user: null,
+
+      currentUser: {
+        id: localStorage.getItem("userId"),
+        authLevel: null,
+      },
+
+      showNav: false,
     };
   },
-  created() {
+  async created() {
     this.user = localStorage.getItem("token");
+
+    await axios.get(`/users/${this.currentUser.id}`).then((response) => {
+      this.currentUser.authLevel = response.data.authLevel;
+      this.currentUser.avatar = response.data.avatar;
+    });
   },
   methods: {
     logout() {
@@ -78,5 +91,22 @@ export default {
   height: 100%;
   min-height: 60px;
   max-height: 150px;
+}
+
+.profile_button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+}
+</style>
+
+<style scoped>
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
 }
 </style>

@@ -31,19 +31,19 @@
       <div class="level-item has-text-centered">
         <div>
           <p class="heading">Posts</p>
-          <p class="title">{{ this.posts.total }}</p>
+          <p class="title">{{ this.posts.length }}</p>
         </div>
       </div>
       <div class="level-item has-text-centered">
         <div>
           <p class="heading">Comments</p>
-          <p class="title">{{ this.posts.total }}</p>
+          <p class="title">{{ this.comments.length }}</p>
         </div>
       </div>
     </div>
-    <div v-if="this.user.password" class="buttonsContainer">
+    <div v-if="this.user.password || this.currentUser.authLevel >= 2" class="buttonsContainer">
       <button class="button is-primary is-outlined">
-        <router-link :to="`/editUser/${this.user.id}`">Edit</router-link>
+        <router-link :to="`/users/${this.user.id}/edit`">Edit</router-link>
       </button>
       <button class="button is-danger" @click="deleteUser">Delete</button>
     </div>
@@ -59,6 +59,11 @@ export default {
       user: {},
       posts: [],
       comments: [],
+
+      currentUser: {
+        id: localStorage.getItem("userId"),
+        authLevel: null,
+      },
     };
   },
 
@@ -90,23 +95,19 @@ export default {
 
     async fetchPosts() {
       await axios.get(`/posts`).then((response) => {
-        let filteredPosts = response.data.filter((post) => {
-          return post.authorId === this.user.id;
-        });
+        let data = response.data;
+        let dataFiltered = data.filter((post) => post.authorId == this.$route.params.id);
 
-        this.posts = filteredPosts;
-        this.posts.total = filteredPosts.length;
+        this.posts = dataFiltered;
       });
     },
 
     async fetchComments() {
       await axios.get(`/posts/comments/all`).then((response) => {
-        let filteredPosts = response.data.filter((comment) => {
-          return comment.authorId === this.user.id;
-        });
+        let data = response.data.comments;
+        let dataFiltered = data.filter((comment) => comment.authorId == this.$route.params.id);
 
-        this.comments = filteredPosts;
-        this.comments.total = filteredPosts.length;
+        this.comments = dataFiltered;
       });
     },
 
@@ -125,6 +126,10 @@ export default {
     await this.fetchUser();
     await this.fetchPosts();
     await this.fetchComments();
+
+    await axios.get(`/users/${this.currentUser.id}`).then((response) => {
+      this.currentUser.authLevel = response.data.authLevel;
+    });
   },
 };
 </script>

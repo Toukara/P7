@@ -2,13 +2,11 @@
 
 $family-primary: Lato, sans-serif !default;
 
-$pink: hsl(0, 100%, 92%);
-$red: hsl(10, 99%, 50%);
+$secondary: #ffd7d7;
+$tertiary: #4e5166;
 
-$primary: $pink;
-$link: $red;
-
-
+$primary: #fd2d01;
+$link: $secondary;
 
 @import "../../node_modules/bulma/sass/utilities/initial-variables.sass";
 @import "~bulma";

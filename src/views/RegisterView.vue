@@ -3,28 +3,28 @@
     <div class="field">
       <label class="label">Username</label>
       <div class="control">
-        <input v-model="registerData.username" class="input" type="text" />
+        <input v-model="registerData.username" class="input" type="text" maxlength="30" minlength="3" />
       </div>
     </div>
 
     <div class="field">
       <label class="label">Email</label>
       <div class="control">
-        <input v-model="registerData.email" class="input" type="email" />
+        <input v-model="registerData.email" class="input" type="email" maxlength="255" minlength="8" />
       </div>
     </div>
 
     <div class="field">
       <label class="label">Password</label>
       <div class="control">
-        <input v-model="registerData.password" class="input" type="text" />
+        <input v-model="registerData.password" class="input" type="password" maxlength="255" minlength="8" />
       </div>
     </div>
 
     <div class="field">
       <label class="label">Confirm Password</label>
       <div class="control">
-        <input v-model="registerData.passwordConfirmation" class="input" type="email" />
+        <input v-model="registerData.passwordConfirmation" class="input" type="password" maxlength="255" minlength="8" />
       </div>
     </div>
 
@@ -42,6 +42,7 @@
 
 <script>
 import axios from "axios";
+import validator from "validator";
 
 export default {
   name: "RegisterView",
@@ -64,6 +65,13 @@ export default {
     async register() {
       if (this.registerData.password !== this.registerData.passwordConfirmation) {
         this.error.message = "Passwords do not match";
+        return;
+      } else if (!validator.isEmail(this.registerData.email)) {
+        this.error.message = "Email is not valid";
+        return;
+      } else if (!validator.isLength(this.registerData.password) && !validator.isStrongPassword(this.registerData.password)) {
+        this.error.message =
+          "Password must be at least 8 characters long and no more than 255 characters long and must contain at least one number, one uppercase letter, and one lowercase letter";
         return;
       } else {
         if (

@@ -2,11 +2,11 @@
   <div class="container">
     <h1 class="title">{{ this.post.title }}</h1>
     <div v-if="!this.post">Loading...</div>
-    <PostOne v-else :post="this.post" />
+    <PostOne v-else :post="this.post" :currentUser="this.currentUser" />
     <div class="comments_container">
       <CreateComment :post="this.post" />
       <h2 class="comments_title">Comments :</h2>
-      <Comments v-if="comments.length > 0" :comments="this.comments" />
+      <Comments v-if="comments.length > 0" :comments="this.comments" :currentUser="this.currentUser" />
       <div v-else class="no_comments">No comments yet</div>
     </div>
   </div>
@@ -28,6 +28,11 @@ export default {
       comments: [],
       timestamp: {},
       token: localStorage.getItem("token"),
+
+      currentUser: {
+        id: localStorage.getItem("userId"),
+        authLevel: null,
+      },
     };
   },
   methods: {
@@ -51,7 +56,7 @@ export default {
         comment.author = user.data;
       }
 
-      return (this.comments = commentsResponse.data.comments);
+      return (this.comments = commentsResponse.data.comments.reverse());
     },
 
     async fetchPost() {
@@ -77,6 +82,14 @@ export default {
   async created() {
     await this.fetchComments();
     await this.fetchPost();
+
+    await axios
+      .get(`http://localhost:3000/api/users/${this.currentUser.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((response) => {
+        this.currentUser.authLevel = response.data.authLevel;
+      });
   },
 };
 </script>

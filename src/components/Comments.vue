@@ -7,7 +7,12 @@
           <p>
             <router-link :to="`/users/${comment.authorId}`"> {{ comment.author.username }}</router-link> commented:
           </p>
-          <button v-if="this.userId == comment.author.id" class="delete delete_comment" aria-label="delete" @click="deleteComment(comment.id)"></button>
+          <button
+            v-if="this.userId == comment.author.id || this.currentUser.authLevel >= 2"
+            class="delete delete_comment"
+            aria-label="delete"
+            @click="deleteComment(comment.id)"
+          ></button>
         </div>
         <div class="message-content">
           <p>{{ comment.content }}</p>
@@ -32,6 +37,10 @@ export default {
       type: Array,
       required: true,
     },
+    currentUser: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -41,7 +50,7 @@ export default {
   methods: {
     async deleteComment(CommentId) {
       console.log(CommentId);
-      let response = await axios.delete(`/posts/comments/${CommentId}`);
+      let response = await axios.delete(`/posts/${CommentId}/comments/`);
 
       if (response.status === 200) {
         alert(response.data.message);

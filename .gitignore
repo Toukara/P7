@@ -28,3 +28,21 @@ pnpm-debug.log*
 
 /server/public/images/attachments/*
 /server/public/images/avatars/*
+
+# env files
+.env
+.env.*
+.env.local
+.env.local.*
+
+# dotfiles
+.DS_Store
+.env
+.env.*
+.env.local
+.env.local.*
+.git
+.gitattributes
+.gitignore
+.gitmodules
+!.gitkeep

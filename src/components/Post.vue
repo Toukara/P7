@@ -2,8 +2,10 @@
   <article class="message is-primary">
     <div class="message-body">
       <div class="buttonsAuthor" v-if="this.post.id">
-        <router-link v-if="this.userId == post.author.id" class="button is-warning" :to="`/posts/${post.id}/edit`">Edit</router-link>
-        <button v-if="this.userId == post.author.id" class="button is-danger" @click="deletePost(post.id)">Delete</button>
+        <router-link v-if="this.userId == post.author.id || this.currentUser.authLevel >= 2" class="button is-warning" :to="`/posts/${post.id}/edit`"
+          >Edit</router-link
+        >
+        <button v-if="this.userId == post.author.id || this.currentUser.authLevel >= 2" class="button is-danger" @click="deletePost(post.id)">Delete</button>
       </div>
       <p>{{ post.content }}</p>
       <div class="message-attachment" v-if="post.attachment">
@@ -47,6 +49,10 @@ export default {
   name: "PostComponent",
   props: {
     post: {
+      type: Object,
+      required: true,
+    },
+    currentUser: {
       type: Object,
       required: true,
     },

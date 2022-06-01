@@ -10,7 +10,7 @@ router.post("/", authorization.isVerifiedUser, attachmentStockage, postsControll
 router.get("/:id", postsController.getOnePost);
 router.delete("/:id", authorization.isVerifiedUser, authorization.isAuthorized, postsController.deletePost);
 router.post("/:id/comments", authorization.isVerifiedUser, postsController.addComment);
-router.delete("/comments/:id", authorization.isVerifiedUser, authorization.isAuthorized, postsController.deleteComment);
+router.delete("/:id/comments/", authorization.isVerifiedUser, authorization.isAuthorized, postsController.deleteComment);
 router.get("/comments/all", authorization.isVerifiedUser, postsController.getComments);
 router.patch("/:id", authorization.isVerifiedUser, authorization.isAuthorized, attachmentStockage, postsController.editPost);
 router.post("/:id/likes", authorization.isVerifiedUser, postsController.likePost);

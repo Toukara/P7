@@ -61,7 +61,6 @@ export default {
   methods: {
     async uploadFile() {
       this.post.attachment = this.$refs.file.files[0];
-      console.log(this.post.attachment);
     },
 
     async createPost() {
