@@ -30,6 +30,13 @@ Create a `config.json` file in `server/config` with the following content :
 }
 ```
 
+Go to **https://jwt.io/** take your secret key.
+Create a `.env` with the following content :
+
+```env
+Secret_Key="YOUR SECRET KEY"
+```
+
 <br>
 
 ## 📂 Backend
