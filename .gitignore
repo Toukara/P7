@@ -6,7 +6,6 @@ node_modules
 
 # local env files
 .env.local
-.env.*.local
 .env
 
 # Log files
@@ -31,7 +30,6 @@ pnpm-debug.log*
 
 # env files
 .env
-.env.*
 .env.local
 .env.local.*
 
